@@ -43,17 +43,32 @@ type CollectionEntryInfo struct {
 	LastPlayed  TraktorDate `xml:"LAST_PLAYED,attr"`
 }
 
-type TraktorDate struct {
-	T time.Time
-}
+// Embedded version
+// type TraktorDate struct {
+// 	time.Time
+// }
+// func (t *TraktorDate) UnmarshalXMLAttr(attr xml.Attr) (err error) {
+// 	t.Time, err = time.Parse("2006/1/2", attr.Value)
+// 	return
+// }
+// func (t TraktorDate) String() string {
+// 	return t.Time.Format("02.01.2006")
+// }
+
+type TraktorDate time.Time
 
 func (t *TraktorDate) UnmarshalXMLAttr(attr xml.Attr) (err error) {
-	t.T, err = time.Parse("2006/1/2", attr.Value)
-	return err
+	newT, err := time.Parse("2006/1/2", attr.Value)
+	if err != nil {
+		return err
+	}
+
+	*t = TraktorDate(newT)
+	return nil
 }
 
 func (t TraktorDate) String() string {
-	return t.T.Format("02.01.2006")
+	return time.Time(t).Format("02.01.2006")
 }
 
 type Playlist struct {
